@@ -12,6 +12,16 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    compile 'com.android.support:support-v4:18.0.+'
+    compile 'com.jakewharton:butterknife:2.0.1'
+    compile 'com.squareup.dagger:dagger-compiler:1.1.0'
+    compile 'com.squareup.picasso:picasso:1.1.1'
+    compile 'com.squareup.okhttp:okhttp:1.2.1'
+    compile 'com.google.code.gson:gson:2.2.4'
+
+}
+
 android {
     compileSdkVersion 18
     buildToolsVersion "18.1.0"
@@ -22,10 +32,3 @@ android {
     }
 }
 
-dependencies {
-	compile 'com.android.support:support-v4:18.0.0'
-    compile 'com.jakewharton:butterknife:2.0.1'
-    compile 'com.squareup.dagger:dagger-compiler:1.1.0'
-    compile 'com.squareup.picasso:picasso:1.1.1'
-    compile 'com.google.code.gson:gson:2.2.4'
-}

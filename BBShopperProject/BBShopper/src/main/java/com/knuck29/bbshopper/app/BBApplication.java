@@ -1,10 +1,11 @@
-package com.knuck29.bbshopper;
+package com.knuck29.bbshopper.app;
 
 import java.util.Arrays;
 import java.util.List;
 
 import android.app.Application;
 import com.knuck29.bbshopper.modules.AndroidModule;
+import com.knuck29.bbshopper.modules.BBCatalogModule;
 import dagger.ObjectGraph;
 
 /**
@@ -24,7 +25,7 @@ public class BBApplication extends Application {
 	protected List<Object> getModules() {
 		return Arrays.asList(
                 new AndroidModule(this.getApplicationContext()),
-                new com.knuck29.bbshopper.modules.BBCatalogModule(this)
+                new BBCatalogModule(this)
         );
 	}
 

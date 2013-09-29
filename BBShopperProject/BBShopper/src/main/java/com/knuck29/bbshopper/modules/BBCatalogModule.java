@@ -2,6 +2,8 @@ package com.knuck29.bbshopper.modules;
 
 import javax.inject.Singleton;
 
+import com.knuck29.bbshopper.app.BBApplication;
+import com.knuck29.bbshopper.CategoryActivity;
 import com.knuck29.bbshopper.catalog.Catalog;
 import dagger.Module;
 import dagger.Provides;
@@ -9,12 +11,12 @@ import dagger.Provides;
 /**
  * Created by knolker on 8/7/13.
  */
-@Module(injects = { Catalog.class }, complete = false)
+@Module(injects = { CategoryActivity.class, Catalog.class }, complete = false, library = true)
 public class BBCatalogModule {
 
-	private final com.knuck29.bbshopper.BBApplication mApplication;
+	private final BBApplication mApplication;
 
-	public BBCatalogModule (com.knuck29.bbshopper.BBApplication app) {
+	public BBCatalogModule (BBApplication app) {
 		mApplication = app;
 	}
 
