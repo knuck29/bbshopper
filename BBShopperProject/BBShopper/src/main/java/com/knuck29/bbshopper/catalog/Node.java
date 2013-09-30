@@ -5,7 +5,7 @@ import java.net.URL;
 /**
  * Created by knolker on 9/29/13.
  */
-public abstract class Node implements Navagatible  {
+public abstract class Node  {
 
     private String id;
 
@@ -40,29 +40,5 @@ public abstract class Node implements Navagatible  {
     @Override
     public int hashCode() {
         return getId().hashCode();
-    }
-
-    URL mBreadcrumbURL = null;
-    @Override
-    public URL getBreadcrumbURL () {
-        return mBreadcrumbURL;
-    }
-
-    String mBreadcrumTitle;
-    @Override
-    public String getBreadcrumbTitle () {
-        return mBreadcrumTitle;
-    }
-
-    URL mParentBreadcrumbURL = null;
-    @Override
-    public URL getParentBreadcrumbUrl () {
-        return mParentBreadcrumbURL;
-    }
-
-    String mParentBreadcrumTitle;
-    @Override
-    public String getParentBreadcrumbTitle () {
-        return mParentBreadcrumTitle;
     }
 }
