@@ -1,9 +1,11 @@
 package com.knuck29.bbshopper.catalog;
 
+import java.io.Serializable;
+
 /**
  * Created by knolker on 9/29/13.
  */
-public class Price {
+public class Price implements Serializable{
 
     double mValue;
     double mSale;

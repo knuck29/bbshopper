@@ -1,9 +1,11 @@
 package com.knuck29.bbshopper.catalog;
 
+import java.io.Serializable;
+
 /**
  * Created by knolker on 9/29/13.
  */
-public class Image {
+public class Image implements Serializable{
 
     String fullImage;
     String smallThumbnail;

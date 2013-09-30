@@ -1,11 +1,12 @@
 package com.knuck29.bbshopper.catalog;
 
+import java.io.Serializable;
 import java.net.URL;
 
 /**
  * Created by knolker on 9/29/13.
  */
-public abstract class Node  {
+public abstract class Node  implements Serializable{
 
     private String id;
 

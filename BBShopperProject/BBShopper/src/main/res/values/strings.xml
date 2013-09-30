@@ -12,4 +12,9 @@
     <string name="title_section2">Section 2</string>
     <string name="title_section3">Section 3</string>
     <string name="base_url">https://emsapi.bbhosted.com</string>
+    <string name="checkout_cart_url">/checkout/cart</string>
+    <string name="price_value">Value</string>
+    <string name="price_sale">Sale</string>
+    <string name="price_retail">Retail</string>
+    <string name="add_to_cart">Add To Cart</string>
 </resources>

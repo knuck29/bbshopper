@@ -77,15 +77,15 @@ public class ProductAdapter extends ArrayAdapter<Product> {
             TextView priceRetail = (TextView)view.findViewById(R.id.priceRetail);
             TextView priceSale = (TextView) view.findViewById(R.id.priceSale);
             if (product.getValuePrice() != 0){
-                priceValue.setText(String.format("%s%s", mCurrencyFormat.format(product.getValuePrice()), product.getCurrency()));
+                priceValue.setText(String.format("%s: %s %s", mContext.getString(R.string.price_value), mCurrencyFormat.format(product.getValuePrice()), product.getCurrency()));
                 priceValue.setVisibility(View.VISIBLE);
             }
             if (product.getSalePrice() != 0){
-                priceSale.setText(String.format("%s%s", mCurrencyFormat.format(product.getSalePrice()), product.getCurrency()));
+                priceSale.setText(String.format("%s: %s %s", mContext.getString(R.string.price_sale),mCurrencyFormat.format(product.getSalePrice()), product.getCurrency()));
                 priceSale.setVisibility(View.VISIBLE);
             }
             if (product.getRetailPrice() != 0){
-                priceRetail.setText(String.format("%s%s", mCurrencyFormat.format(product.getRetailPrice()), product.getCurrency()));
+                priceRetail.setText(String.format("%s: %s %s", mContext.getString(R.string.price_retail),mCurrencyFormat.format(product.getRetailPrice()), product.getCurrency()));
                 priceRetail.setVisibility(View.VISIBLE);
             }
             if (product.getFullImage() != null){

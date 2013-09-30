@@ -88,7 +88,16 @@ public class CategoryActivity extends BaseActionBarListActivity implements Obser
 		if ((view != null) && (view.getTag() != null) && view.getTag().getClass().equals(Product.class)) {
 			Product product = (Product) view.getTag();
 			if (product.getHref() != null) {
-				catalog.loadCatalog(String.format("%s%s", getString(R.string.base_url), product.getHref()));
+                if (product.getNodeType().equals(Product.NodeType.Category)){
+				    catalog.loadCatalog(String.format("%s%s", getString(R.string.base_url), product.getHref()));
+                }
+                else {
+                    Intent intent = new Intent(CategoryActivity.this, ProductDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable("product", product);
+                    intent.putExtra("bundle", bundle);
+                    startActivity(intent);
+                }
 			}
 		}
 	}

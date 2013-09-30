@@ -1,9 +1,11 @@
 package com.knuck29.bbshopper.catalog;
 
+import java.io.Serializable;
+
 /**
  * Created by knolker on 9/28/13.
  */
-public class Product extends Node implements Comparable<Product> {
+public class Product extends Node implements Comparable<Product>, Serializable {
 
     private Price mPrice = null;
     private NodeType mNodeType;
