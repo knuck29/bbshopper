@@ -24,18 +24,7 @@ public class BBCatalogModule {
 	@Provides
 	@Singleton
 	Catalog provideCatalog(Context context) {
-		Catalog catalog =  new Catalog(context);
-//		mApplication.inject(catalog);
-		return catalog;
+		return new Catalog(context);
 	}
-
-//	@Provides
-//	@Singleton
-//	DataManager provideDataManager() {
-//		DataManager dataManager = new DataManager();
-//		mApplication.inject(dataManager);
-//		return dataManager;
-//		// return new DataManager(mApplication.getApplicationContext());
-//	}
 
 }

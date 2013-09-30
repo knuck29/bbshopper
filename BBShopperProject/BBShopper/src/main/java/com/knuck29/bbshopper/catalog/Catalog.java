@@ -27,16 +27,17 @@ public class Catalog extends Observable {
 
 	Context mContext;
 	OkHttpClient mHttpClient = new OkHttpClient();
-	ArrayList<Category> mCategories = new ArrayList<Category>();
-	Breadcrumb mParentBreadcrumb = null;
+//	ArrayList<Category> mCategories = new ArrayList<Category>();
+    ArrayList<Product> mProducts = new ArrayList<Product>();
+	ArrayList<Breadcrumb> mBreadcrumbs = new ArrayList<Breadcrumb>();
 
 	@Inject
 	public Catalog(Context context) {
 		mContext = context;
 	}
 
-	public ArrayList<Category> getCategories() {
-		return mCategories;
+	public ArrayList<Product> getProducts() {
+		return mProducts;
 	}
 
 	public void loadCatalog(String url) {
@@ -44,9 +45,14 @@ public class Catalog extends Observable {
 		task.execute(url);
 	}
 
+    public boolean canNavigateBack(){
+        return ((mBreadcrumbs != null) && (mBreadcrumbs.size() >= 2));
+    }
+
 	public void navigateBreadcrumbBack() {
-		if ((mParentBreadcrumb != null) && (mParentBreadcrumb.getHref() != null)) {
-			loadCatalog(mContext.getString(R.string.base_url) + mParentBreadcrumb.getHref());
+        if ((mBreadcrumbs != null) && (mBreadcrumbs.size() >= 2)) {
+            String parentBreadcrumb = mBreadcrumbs.get(mBreadcrumbs.size() - 2).getHref();
+			loadCatalog(mContext.getString(R.string.base_url) + parentBreadcrumb);
 		}
 	}
 
@@ -85,7 +91,10 @@ public class Catalog extends Observable {
 					JsonElement json = new JsonParser().parse(jsonResponse);
 
 					JsonObject responseObject = json.getAsJsonObject();
-					mCategories.clear();
+
+                    mProducts.clear();
+                    mBreadcrumbs.clear();
+
 					if (responseObject.has("categories")) {
 
 						JsonElement categoryElement = responseObject.get("categories");
@@ -99,8 +108,9 @@ public class Catalog extends Observable {
 							while (iterator.hasNext()) {
 								JsonElement json2 = (JsonElement) iterator.next();
 								Gson gson = new Gson();
-								Category category = gson.fromJson(json2, Category.class);
-								mCategories.add(category);
+								Product product = gson.fromJson(json2, Product.class);
+                                product.setNodeType(Product.NodeType.Category);
+                                mProducts.add(product);
 								setChanged();
 							}
 						}
@@ -115,15 +125,80 @@ public class Catalog extends Observable {
 
 							Iterator iterator = array.iterator();
 
-							if (iterator.hasNext()) {
+							while (iterator.hasNext()) {
 								JsonElement json2 = (JsonElement) iterator.next();
 								Gson gson = new Gson();
-								Breadcrumb breadcrumb = gson.fromJson(json2, Breadcrumb.class);
-								mParentBreadcrumb = breadcrumb;
+                                mBreadcrumbs.add(gson.fromJson(json2, Breadcrumb.class));
 								setChanged();
 							}
 						}
 					}
+                    if (responseObject.has("products")) {
+
+                        JsonElement productsElement = responseObject.get("products");
+
+                        if (!productsElement.isJsonNull() && productsElement.isJsonArray()) {
+
+                            JsonArray array = productsElement.getAsJsonArray();
+
+                            Iterator iterator = array.iterator();
+
+                            while (iterator.hasNext()) {
+                                JsonElement json2 = (JsonElement) iterator.next();
+                                if ((!json2.isJsonNull()) && (json2.isJsonObject())){
+                                    JsonObject pobj = json2.getAsJsonObject();
+                                    Product product = new Product();
+                                    if (pobj.has("id")){
+                                        product.setId(pobj.get("id").getAsString());
+                                    }
+                                    if (pobj.has("title")){
+                                        product.setTitle(pobj.get("title").getAsString());
+                                    }
+                                    if (pobj.has("href")){
+                                        product.setHref(pobj.get("href").getAsString());
+                                    }
+                                    if (pobj.has("image")){
+                                        JsonElement imageElement  = pobj.get("image");
+                                        Image image = new Image();
+                                        if ((!imageElement.isJsonNull()) && (imageElement.isJsonObject())){
+                                            JsonObject io = imageElement.getAsJsonObject();
+
+                                            if (io.has("full")){
+                                                image.setFullImage(io.get("full").getAsString());
+                                            }
+                                            if (io.has("thumbs")){
+                                                JsonObject to = io.get("thumbs").getAsJsonObject();
+                                                image.setSmallThumbnail(to.get("small").getAsString());
+                                                image.setLargeThumbnail(to.get("large").getAsString());
+                                            }
+                                        }
+                                        product.setImage(image);
+                                    }
+                                    if (pobj.has("price")){
+                                        JsonElement priceElement  = pobj.get("price");
+
+                                        if ((!priceElement.isJsonNull()) && (priceElement.isJsonObject())){
+                                            JsonObject po = priceElement.getAsJsonObject();
+
+                                            if ((po.has("currency")) && (po.has("value"))){
+                                                Price price = new Price(po.get("value").getAsDouble(), po.get("currency").getAsString());
+                                                if (po.has("retail")){
+                                                    price.setRetail(po.get("retail").getAsDouble());
+                                                }
+                                                if (po.has("sale")){
+                                                    price.setSale(po.get("sale").getAsDouble());
+                                                }
+                                                product.setPrice(price);
+                                            }
+                                        }
+                                    }
+                                    product.setNodeType(Product.NodeType.Product);
+                                    mProducts.add(product);
+                                    setChanged();
+                                }
+                            }
+                        }
+                    }
 
 				}
 				catch (UnsupportedEncodingException e) {

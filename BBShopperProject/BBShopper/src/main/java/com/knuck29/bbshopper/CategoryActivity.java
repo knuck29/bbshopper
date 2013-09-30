@@ -5,6 +5,9 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,16 +16,15 @@ import android.widget.AdapterView;
 
 import com.knuck29.bbshopper.app.BaseActionBarListActivity;
 import com.knuck29.bbshopper.catalog.Catalog;
-import com.knuck29.bbshopper.catalog.Category;
-import com.knuck29.bbshopper.catalog.CategoryAdapter;
+import com.knuck29.bbshopper.catalog.Product;
+import com.knuck29.bbshopper.catalog.ProductAdapter;
 
 public class CategoryActivity extends BaseActionBarListActivity implements Observer, AdapterView.OnItemClickListener {
 
 	// private static String BASE_URL = "https://emsapi.bbhosted.com";
 
 	@Inject Catalog catalog;
-	CategoryAdapter categoryAdapter = null;
-	String mParentNodeUrl = null;
+	ProductAdapter categoryAdapter = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +59,25 @@ public class CategoryActivity extends BaseActionBarListActivity implements Obser
 	}
 
 	@Override
+	public void onBackPressed() {
+		if (catalog.canNavigateBack()) {
+			catalog.navigateBreadcrumbBack();
+		}
+		else {
+			super.onBackPressed();
+		}
+	}
+
+	@Override
 	public void update(Observable observable, Object data) {
 		if (categoryAdapter == null) {
-			categoryAdapter = new CategoryAdapter(CategoryActivity.this, android.R.layout.simple_list_item_1,
-					catalog.getCategories());
+			categoryAdapter = new ProductAdapter(CategoryActivity.this, android.R.layout.simple_list_item_1,
+					R.layout.row_product, catalog.getProducts(), postedImageClickHandler);
 			getListView().setAdapter(categoryAdapter);
 			getListView().setOnItemClickListener(this);
 		}
 		else {
-			categoryAdapter.setCategroies(catalog.getCategories());
+			categoryAdapter.setCategories(catalog.getProducts());
 			categoryAdapter.notifyDataSetChanged();
 		}
 
@@ -73,11 +85,37 @@ public class CategoryActivity extends BaseActionBarListActivity implements Obser
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if ((view != null) && (view.getTag() != null) && view.getTag().getClass().equals(Category.class)) {
-			Category category = (Category) view.getTag();
-			if (category.getHref() != null) {
-				catalog.loadCatalog(String.format("%s%s", getString(R.string.base_url), category.getHref()));
+		if ((view != null) && (view.getTag() != null) && view.getTag().getClass().equals(Product.class)) {
+			Product product = (Product) view.getTag();
+			if (product.getHref() != null) {
+				catalog.loadCatalog(String.format("%s%s", getString(R.string.base_url), product.getHref()));
 			}
 		}
 	}
+
+	private View.OnClickListener postedImageClickHandler = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View view) {
+			if (view.getTag() != null) {
+				try {
+					String imageUrl = (String) view.getTag();
+					Intent viewIntent;
+					if (Build.VERSION.class.getField("SDK_INT").getInt(null) >= Build.VERSION_CODES.HONEYCOMB) {
+						viewIntent = new Intent(Intent.ACTION_VIEW);
+						viewIntent.setDataAndType(Uri.parse(imageUrl), "image/*");
+					}
+					else {
+						viewIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(imageUrl));
+					}
+
+					startActivityForResult(viewIntent, 99);
+
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	};
 }
