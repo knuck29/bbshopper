@@ -2,6 +2,7 @@ package com.knuck29.bbshopper.modules;
 
 import javax.inject.Singleton;
 
+import android.content.Context;
 import com.knuck29.bbshopper.app.BBApplication;
 import com.knuck29.bbshopper.CategoryActivity;
 import com.knuck29.bbshopper.catalog.Catalog;
@@ -22,8 +23,10 @@ public class BBCatalogModule {
 
 	@Provides
 	@Singleton
-	Catalog provideCatalog() {
-		return new Catalog();
+	Catalog provideCatalog(Context context) {
+		Catalog catalog =  new Catalog(context);
+//		mApplication.inject(catalog);
+		return catalog;
 	}
 
 //	@Provides

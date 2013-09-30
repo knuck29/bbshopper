@@ -24,7 +24,7 @@ public class BBApplication extends Application {
 
 	protected List<Object> getModules() {
 		return Arrays.asList(
-                new AndroidModule(this.getApplicationContext()),
+                new AndroidModule(this),
                 new BBCatalogModule(this)
         );
 	}

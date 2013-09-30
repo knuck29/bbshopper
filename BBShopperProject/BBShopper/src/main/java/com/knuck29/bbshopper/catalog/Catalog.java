@@ -13,9 +13,11 @@ import java.util.Observable;
 
 import javax.inject.Inject;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.google.gson.*;
+import com.knuck29.bbshopper.R;
 import com.squareup.okhttp.OkHttpClient;
 
 /**
@@ -23,27 +25,29 @@ import com.squareup.okhttp.OkHttpClient;
  */
 public class Catalog extends Observable {
 
-	private static String BASE_URL = "https://emsapi.bbhosted.com";
-
+	Context mContext;
 	OkHttpClient mHttpClient = new OkHttpClient();
 	ArrayList<Category> mCategories = new ArrayList<Category>();
+	Breadcrumb mParentBreadcrumb = null;
 
 	@Inject
-	public Catalog() {
-		initialize();
+	public Catalog(Context context) {
+		mContext = context;
 	}
 
 	public ArrayList<Category> getCategories() {
 		return mCategories;
 	}
 
-	public void initialize() {
-		loadCatalog();
+	public void loadCatalog(String url) {
+		DownloadCatalog task = new DownloadCatalog();
+		task.execute(url);
 	}
 
-	public void loadCatalog() {
-		DownloadCatalog task = new DownloadCatalog();
-		task.execute(BASE_URL);
+	public void navigateBreadcrumbBack() {
+		if ((mParentBreadcrumb != null) && (mParentBreadcrumb.getHref() != null)) {
+			loadCatalog(mContext.getString(R.string.base_url) + mParentBreadcrumb.getHref());
+		}
 	}
 
 	private byte[] readFully(InputStream in) throws IOException {
@@ -81,7 +85,7 @@ public class Catalog extends Observable {
 					JsonElement json = new JsonParser().parse(jsonResponse);
 
 					JsonObject responseObject = json.getAsJsonObject();
-
+					mCategories.clear();
 					if (responseObject.has("categories")) {
 
 						JsonElement categoryElement = responseObject.get("categories");
@@ -97,6 +101,25 @@ public class Catalog extends Observable {
 								Gson gson = new Gson();
 								Category category = gson.fromJson(json2, Category.class);
 								mCategories.add(category);
+								setChanged();
+							}
+						}
+					}
+					if (responseObject.has("breadcrumbs")) {
+
+						JsonElement breadcrumbsElement = responseObject.get("breadcrumbs");
+
+						if (!breadcrumbsElement.isJsonNull() && breadcrumbsElement.isJsonArray()) {
+
+							JsonArray array = breadcrumbsElement.getAsJsonArray();
+
+							Iterator iterator = array.iterator();
+
+							if (iterator.hasNext()) {
+								JsonElement json2 = (JsonElement) iterator.next();
+								Gson gson = new Gson();
+								Breadcrumb breadcrumb = gson.fromJson(json2, Breadcrumb.class);
+								mParentBreadcrumb = breadcrumb;
 								setChanged();
 							}
 						}

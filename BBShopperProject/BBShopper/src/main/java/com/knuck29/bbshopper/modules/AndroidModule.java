@@ -2,7 +2,9 @@ package com.knuck29.bbshopper.modules;
 
 import javax.inject.Singleton;
 
+import android.app.Application;
 import android.content.Context;
+import com.knuck29.bbshopper.app.BBApplication;
 import dagger.Module;
 import dagger.Provides;
 
@@ -11,10 +13,10 @@ import dagger.Provides;
  */
 @Module(library = true)
 public class AndroidModule {
-	private final Context mContext;
+	private final Application mApplication;
 
-	public AndroidModule(Context application) {
-		mContext = application;
+	public AndroidModule(BBApplication application) {
+        mApplication = application;
 	}
 
 	/**
@@ -24,7 +26,12 @@ public class AndroidModule {
 	 */
 	@Provides @Singleton @ForApplication
 	Context provideApplicationContext() {
-		return mContext;
+		return mApplication.getApplicationContext();
 	}
 
+    @Provides
+    @Singleton
+    Context provideBaseContext() {
+        return mApplication.getBaseContext();
+    }
 }

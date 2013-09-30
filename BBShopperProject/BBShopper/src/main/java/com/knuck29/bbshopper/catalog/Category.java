@@ -3,37 +3,7 @@ package com.knuck29.bbshopper.catalog;
 /**
  * Created by knolker on 9/28/13.
  */
-public class Category implements Comparable<Category> {
-
-	private String id;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	private String title;
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	private String href;
-
-	public String getHref() {
-		return href;
-	}
-
-	public void setHref(String href) {
-		this.href = href;
-	}
+public class Category extends Node implements Comparable<Category> {
 
 	@Override
 	public boolean equals(Object obj) {
@@ -48,13 +18,8 @@ public class Category implements Comparable<Category> {
 
 		Category another = (Category) obj;
 
-		return id.equals(another.id);
+		return getId().equals(another.getId());
 
-	}
-
-	@Override
-	public int hashCode() {
-		return id.hashCode();
 	}
 
 	@Override
@@ -64,6 +29,6 @@ public class Category implements Comparable<Category> {
 			throw new ClassCastException("A Category object expected.");
 		}
 
-		return id.compareTo(another.id);
+		return getId().compareTo(another.getId());
 	}
 }
