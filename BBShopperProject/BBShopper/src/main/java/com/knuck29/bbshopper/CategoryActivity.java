@@ -30,11 +30,23 @@ public class CategoryActivity extends BaseActionBarListActivity implements Obser
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		catalog.addObserver(this);
 		catalog.loadCatalog(getString(R.string.base_url));
 	}
 
-	@Override
+    @Override
+    protected void onResume () {
+        catalog.addObserver(this);
+        super.onResume();
+
+    }
+
+    @Override
+    protected void onPause () {
+        catalog.deleteObserver(this);
+        super.onPause();
+    }
+
+    @Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.category, menu);

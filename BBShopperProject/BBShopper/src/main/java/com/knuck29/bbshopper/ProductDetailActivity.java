@@ -54,10 +54,22 @@ public class ProductDetailActivity extends BaseActionBarActivity implements Obse
 		setContentView(R.layout.activity_productdetail);
 		Views.inject(this);
 		initialize(getIntent().getBundleExtra("bundle"));
-        catalog.addObserver(this);
+
 	}
 
-	private void initialize(Bundle bundle) {
+    @Override
+    protected void onResume () {
+        catalog.addObserver(this);
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause () {
+        catalog.deleteObserver(this);
+        super.onPause();
+    }
+
+    private void initialize(Bundle bundle) {
 
 		product = (Product) bundle.getSerializable("product");
 
