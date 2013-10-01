@@ -1,10 +1,13 @@
 package com.knuck29.bbshopper;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
-import java.util.Locale;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -25,13 +28,15 @@ import android.widget.Toast;
 import butterknife.InjectView;
 import butterknife.Views;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.knuck29.bbshopper.app.BaseActionBarActivity;
 import com.knuck29.bbshopper.catalog.Catalog;
 import com.knuck29.bbshopper.catalog.Product;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.Picasso;
 
-public class ProductDetailActivity extends BaseActionBarActivity {
+public class ProductDetailActivity extends BaseActionBarActivity implements Observer {
 	@InjectView(android.R.id.text1) TextView title;
 	@InjectView(R.id.priceValue) TextView priceValue;
 	@InjectView(R.id.priceSale) TextView priceSale;
@@ -49,6 +54,7 @@ public class ProductDetailActivity extends BaseActionBarActivity {
 		setContentView(R.layout.activity_productdetail);
 		Views.inject(this);
 		initialize(getIntent().getBundleExtra("bundle"));
+        catalog.addObserver(this);
 	}
 
 	private void initialize(Bundle bundle) {
@@ -59,23 +65,23 @@ public class ProductDetailActivity extends BaseActionBarActivity {
 	}
 
 	private void initUI() {
-        Picasso.with(ProductDetailActivity.this).load(product.getFullImage()).into(imageFull);
-        imageFull.setTag(product.getFullImage());
-        imageFull.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		Picasso.with(ProductDetailActivity.this).load(product.getFullImage()).into(imageFull);
+		imageFull.setTag(product.getFullImage());
+		imageFull.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		title.setText(product.getTitle());
 		priceValue.setText(String.format("%s: %s %s", getString(R.string.price_value),
 				mCurrencyFormat.format(product.getValuePrice()), product.getCurrency()));
-        priceValue.setVisibility((product.getValuePrice() !=0) ? View.VISIBLE: View.GONE);
+		priceValue.setVisibility((product.getValuePrice() != 0) ? View.VISIBLE : View.GONE);
 
-        priceSale.setText(String.format("%s: %s %s", getString(R.string.price_sale),
+		priceSale.setText(String.format("%s: %s %s", getString(R.string.price_sale),
 				mCurrencyFormat.format(product.getSalePrice()), product.getCurrency()));
-        priceSale.setVisibility((product.getSalePrice() !=0) ? View.VISIBLE: View.GONE);
+		priceSale.setVisibility((product.getSalePrice() != 0) ? View.VISIBLE : View.GONE);
 
-        priceRetail.setText(String.format("%s: %s %s", getString(R.string.price_retail),
+		priceRetail.setText(String.format("%s: %s %s", getString(R.string.price_retail),
 				mCurrencyFormat.format(product.getRetailPrice()), product.getCurrency()));
-        priceRetail.setVisibility((product.getRetailPrice() !=0) ? View.VISIBLE: View.GONE);
+		priceRetail.setVisibility((product.getRetailPrice() != 0) ? View.VISIBLE : View.GONE);
 
-        addToCart.setOnClickListener(new View.OnClickListener() {
+		addToCart.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				addItemToCart(product.getId(), 1);
@@ -124,33 +130,49 @@ public class ProductDetailActivity extends BaseActionBarActivity {
 
 	private void addItemToCart(String productId, int quantity) {
 		if ((productId != null) && (quantity != 0)) {
-			String formBody = String.format("id=%s&qty=%s", product.getId(), "1");
-
-            AddToCart task = new AddToCart();
-            task.execute(formBody);
-
+			JsonObject bodyJson = new JsonObject();
+			bodyJson.addProperty("id", "20040506|15449667");
+			bodyJson.addProperty("qty", 1);
+			AddToCart task = new AddToCart();
+			task.execute(bodyJson);
 		}
 	}
 
-	private class AddToCart extends AsyncTask<String, Boolean, Boolean> {
+    @Override
+    public void update (Observable observable, Object data) {
+        Toast.makeText(this, catalog.getCartString(), Toast.LENGTH_LONG).show();
+    }
+
+    private class AddToCart extends AsyncTask<JsonObject, Boolean, Boolean> {
 
 		OkHttpClient client = new OkHttpClient();
 
 		@Override
-		protected Boolean doInBackground(String... params) {
+		protected Boolean doInBackground(JsonObject... params) {
 			boolean success = true;
-			if ((params != null) && (params[0].length() > 0)) {
-				String body = params[0];
+			if (params != null) {
+
+				JsonObject body = params[0];
 				String url = String.format("%s%s", getString(R.string.base_url), getString(R.string.checkout_cart_url));
-				OutputStream out = null;
+				String urlParameters = getUrlParametersFromJson(body);
+
+				DataOutputStream out = null;
 				InputStream in = null;
 				try {
 					HttpURLConnection connection = client.open(new URL(url));
 
 					// Write the request.
+
 					connection.setRequestMethod("POST");
-					out = connection.getOutputStream();
-					out.write(body.getBytes());
+					connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+					connection.setRequestProperty("Content-Language", "en-US");
+					connection.setUseCaches(false);
+					connection.setDoInput(true);
+					connection.setDoOutput(true);
+					connection.setRequestProperty("form", urlParameters);
+					out = new DataOutputStream(connection.getOutputStream());
+					out.writeBytes(urlParameters);
+					out.flush();
 					out.close();
 
 					// Read the response.
@@ -160,8 +182,6 @@ public class ProductDetailActivity extends BaseActionBarActivity {
 								+ connection.getResponseMessage());
 					}
 					in = connection.getInputStream();
-                    String dummy = readFirstLine(in);
-                    boolean imat = true;
 				}
 				catch (Exception e) {
 					success = false;
@@ -189,23 +209,46 @@ public class ProductDetailActivity extends BaseActionBarActivity {
 			return success;
 		}
 
-		String readFirstLine(InputStream in) throws IOException {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-			return reader.readLine();
-		}
-
 		@Override
 		protected void onPostExecute(Boolean success) {
-			String msg = null;
+			String msg;
 			if (success) {
 				msg = "Item Added";
 			}
 			else {
 				msg = "Item NOT Added";
 			}
+            catalog.loadCart();
 			Toast.makeText(ProductDetailActivity.this, msg, Toast.LENGTH_SHORT).show();
 			super.onPostExecute(success);
 		}
+
+		private String getUrlParametersFromJson(JsonObject json) {
+			StringBuilder sb = new StringBuilder("");
+			try {
+				if (!json.isJsonNull()) {
+					Set<Map.Entry<String, JsonElement>> set = json.entrySet();
+					Iterator<Map.Entry<String, JsonElement>> it = set.iterator();
+					while (it.hasNext()) {
+						Map.Entry<String, JsonElement> entry = it.next();
+						if (sb.length() > 0) {
+							sb.append("&");
+						}
+						sb.append(entry.getKey());
+						sb.append("=");
+						sb.append(URLEncoder.encode(entry.getValue().getAsString(), "UTF-8"));
+					}
+				}
+			}
+			catch (Exception e) {
+				sb = new StringBuilder("");
+			}
+
+			return sb.toString();
+		}
+
 	}
+
+
 
 }

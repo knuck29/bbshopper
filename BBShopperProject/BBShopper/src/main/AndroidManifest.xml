@@ -26,10 +26,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.knuck29.bbshopper.BaseActionBarActivity"
-            android:label="@string/title_activity_base_action_bar" >
-        </activity>
-        <activity
             android:name="com.knuck29.bbshopper.ProductDetailActivity"
             android:label="@string/title_activity_product_detail"
             android:parentActivityName="com.knuck29.bbshopper.CategoryActivity" >
