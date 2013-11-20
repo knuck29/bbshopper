@@ -1,6 +1,10 @@
 buildscript {
     repositories {
         mavenCentral()
+        maven {
+            url "http://localhost:8081/nexus/content/repositories/snapshots/"
+            artifactUrls "http://localhost:8081/nexus/content/repositories/snapshots/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:0.6.+'
@@ -10,6 +14,10 @@ apply plugin: 'android'
 
 repositories {
     mavenCentral()
+    maven {
+        url "http://localhost:8081/nexus/content/repositories/snapshots/"
+        artifactUrls "http://localhost:8081/nexus/content/repositories/snapshots/"
+    }
 }
 
 dependencies {
@@ -23,6 +31,8 @@ dependencies {
     compile 'com.squareup.dagger:dagger-compiler:1.1.0@jar'
     compile 'javax.inject:javax.inject:1'
     compile 'com.squareup:javawriter:2.2.1@jar'
+//    compile 'com.knuck29:knucklib:0.0.1-SNAPSHOT@aar'
+//    compile 'com.brandingbrand.meat:android:3.0.1-SNAPSHOT@aar'
 }
 
 android {
@@ -31,7 +41,15 @@ android {
 
     defaultConfig {
         minSdkVersion 11
-        targetSdkVersion 18
+        targetSdkVersion 19
+    }
+
+    buildTypes {
+        foo.initWith(buildTypes.debug)
+        foo {
+            packageNameSuffix ".foo"
+
+        }
     }
 }
 
