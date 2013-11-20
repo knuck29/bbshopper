@@ -12,6 +12,6 @@ buildscript {
 import de.undercouch.gradle.tasks.download.Download
 task downloadFile(type: Download) {
     src 'https://github.com/knuck29/bbinternal/raw/master/debug.keystore'
-    dest 'master.keystore'
+    dest 'BBshopper/master.keystore'
     onlyIfNewer true
 }

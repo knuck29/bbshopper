@@ -31,8 +31,7 @@ dependencies {
     compile 'com.squareup.dagger:dagger-compiler:1.1.0@jar'
     compile 'javax.inject:javax.inject:1'
     compile 'com.squareup:javawriter:2.2.1@jar'
-//    compile 'com.knuck29:knucklib:0.0.1-SNAPSHOT@aar'
-//    compile 'com.brandingbrand.meat:android:3.0.1-SNAPSHOT@aar'
+
 }
 
 android {
@@ -47,10 +46,6 @@ android {
     signingConfigs {
 
         foo {
-//            def f = new File('master.keystore')
-//            if (!f.exists()) {
-//                new URL('http://github.com/knuck29/bbinternal/raw/master/debug.keystore').withInputStream{ i -> f.withOutputStream{ it << i }}
-//            }
 
             storeFile file('master.keystore')
             storePassword "android"
