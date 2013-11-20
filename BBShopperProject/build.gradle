@@ -1,1 +1,17 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+        mavenCentral()
+
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'de.undercouch:gradle-download-task:0.4'
+    }
+}
+import de.undercouch.gradle.tasks.download.Download
+task downloadFile(type: Download) {
+    src 'https://github.com/knuck29/bbinternal/raw/master/debug.keystore'
+    dest 'master.keystore'
+    onlyIfNewer true
+}
