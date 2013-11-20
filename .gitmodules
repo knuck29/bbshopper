@@ -1,0 +1,3 @@
+[submodule "BBShopperProject/libraries"]
+	path = BBShopperProject/libraries
+	url = https://knolker@bitbucket.org/knolker/knucklib.git
