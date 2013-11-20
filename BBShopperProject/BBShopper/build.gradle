@@ -44,12 +44,32 @@ android {
         targetSdkVersion 19
     }
 
+    signingConfigs {
+        debug {
+            storeFile file("debug.keystore")
+        }
+
+        foo {
+
+            def f = new File('master.keystore')
+            if (!f.exists()) {
+                new URL('http://github.com/knuck29/bbinternal/raw/master/debug.keystore').withInputStream{ i -> f.withOutputStream{ it << i }}
+            }
+
+            storeFile file(f)
+            storeType 'JKS'
+        }
+
+    }
+
     buildTypes {
         foo.initWith(buildTypes.debug)
         foo {
             packageNameSuffix ".foo"
+            signingConfig signingConfigs.foo
 
         }
     }
+
 }
 
